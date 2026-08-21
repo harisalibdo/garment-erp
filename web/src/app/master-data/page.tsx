@@ -1,3 +1,4 @@
+import { API_BASE } from "@/lib/api";
 "use client";
 
 import Link from "next/link";
@@ -21,8 +22,8 @@ const tabs: Array<{ key: MasterDataKey; label: string; icon: string }> = [
 
 async function fetchMasterRecords() {
   const [supplierResponse, fabricResponse] = await Promise.all([
-    fetch(`\${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/master-data/suppliers`),
-    fetch(`\${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/master-data/fabric-types`),
+    fetch(`\https://garment-erp-api-nr0i.onrender.com/master-data/suppliers`),
+    fetch(`\https://garment-erp-api-nr0i.onrender.com/master-data/fabric-types`),
   ]);
   if (!supplierResponse.ok || !fabricResponse.ok) {
     throw new Error("Master data could not be loaded.");
@@ -68,7 +69,7 @@ export default function MasterDataPage() {
     setMessage(null);
     setError(null);
     try {
-      const response = await fetch(`\${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/master-data/suppliers`, {
+      const response = await fetch(`\https://garment-erp-api-nr0i.onrender.com/master-data/suppliers`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code: supplierCode, name: supplierName }),
