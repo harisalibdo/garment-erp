@@ -1,0 +1,109 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  OWNER
+  OPS_HEAD
+  WAREHOUSE
+  QA
+}
+
+enum BatchType {
+  RAW_FABRIC
+  CUT_BUNDLE
+  FINISHED_CATALOG
+}
+
+enum ProcessingStage {
+  WAREHOUSE_RAW
+  CUTTING
+  EMBROIDERY
+  STITCHING
+  HANDWORK
+  QA_INSPECTION
+  PACKED_CATALOG
+}
+
+// NEW: The strict Unit of Measure rules
+enum MeasurementUnit {
+  YARDS
+  METERS
+  SUITS
+}
+
+model User {
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(WAREHOUSE)
+  createdAt    DateTime @default(now())
+}
+
+model Vendor {
+  id          String         @id @default(uuid())
+  name        String
+  serviceType String
+  balance     Decimal        @default(0.0)
+  batches     ItemBatch[]
+  ledgers     VendorLedger[]
+}
+
+model Supplier {
+  id        String      @id @default(uuid())
+  code      String      @unique
+  name      String
+  active    Boolean     @default(true)
+  batches   ItemBatch[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model FabricType {
+  id        String      @id @default(uuid())
+  code      String      @unique
+  name      String      @unique
+  active    Boolean     @default(true)
+  batches   ItemBatch[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model ItemBatch {
+  id                            String          @id // e.g. 2608-ZT-LAWN-T1
+  type                          BatchType
+  currentStage                  ProcessingStage @default(WAREHOUSE_RAW)
+  quantity                      Decimal // Yards/Meters (for raw) or Count (for suits)
+  unitOfMeasure                 MeasurementUnit @default(YARDS) // <-- Updated to strict Enum
+  parentBatchId                 String?
+  parentBatch                   ItemBatch?      @relation("BatchHierarchy", fields: [parentBatchId], references: [id])
+  childBatches                  ItemBatch[]     @relation("BatchHierarchy")
+  currentVendorId               String?
+  currentVendor                 Vendor?         @relation(fields: [currentVendorId], references: [id])
+  supplierId                    String?
+  supplier                      Supplier?       @relation(fields: [supplierId], references: [id])
+  fabricTypeId                  String?
+  fabricType                    FabricType?     @relation(fields: [fabricTypeId], references: [id])
+  color                         String?
+  supplierInvoiceNumber         String?
+  supplierDeliveryChallanNumber String?
+  pricePerUnit                  Decimal?
+  totalAmount                   Decimal?
+  createdAt                     DateTime        @default(now())
+  updatedAt                     DateTime        @updatedAt
+}
+
+model VendorLedger {
+  id               String   @id @default(uuid())
+  vendorId         String
+  vendor           Vendor   @relation(fields: [vendorId], references: [id])
+  amount           Decimal
+  type             String // "CREDIT" or "DEBIT"
+  referenceChallan String
+  createdAt        DateTime @default(now())
+}

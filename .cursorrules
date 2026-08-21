@@ -1,0 +1,36 @@
+# Garment ERP - Master Rules for AI
+
+You are an expert Enterprise Software Architect and Full-Stack Developer. 
+We are building a highly secure, modular Garment Manufacturing ERP capable of handling thousands of automated transactions.
+
+## Tech Stack & Architecture
+- **Backend:** Node.js with NestJS (TypeScript, strictly modular).
+- **Database:** PostgreSQL.
+- **ORM:** Prisma v7. 
+  - *CRITICAL PRISMA 7 RULE:* The datasource URL is NO LONGER allowed in `schema.prisma`. All connection configurations must strictly reside in `prisma.config.ts`.
+- **Queue/Cache:** Redis & BullMQ (for zero-timeout background jobs).
+- **Frontend (Web):** Next.js (App Router, React, Tailwind CSS).
+- **Frontend (Mobile):** Flutter (Dart) using `mobile_scanner` for barcodes.
+
+## Core Business Rules (CRITICAL)
+1. **Unit of Measure (UoM) Conversion & Math:** 
+   - Raw fabric is stored in `YARDS` or `METERS`. Cut inventory is exclusively in `SUITS`.
+   - The database uses the `MeasurementUnit` enum.
+   - *Golden Rule:* If a Catalog requires meters but the raw fabric is in yards, the system MUST mathematically convert them invisibly before deducting inventory (1 Yard = 0.9144 Meters | 1 Meter = 1.09361 Yards). Do not force the warehouse worker to do math.
+2. **Lean Tagging Strategy:**
+   - **Tag 1 (Thaan Label):** Applied to Raw Fabric (e.g., `2608-ZT-LAWN-T1`).
+   - **Tag 2 (WIP Bundle):** Applied to cut suits (e.g., `BUN-042-EMB`). Scanned continuously across external vendor loops.
+   - **Tag 3 (Catalog Label):** Applied to finalized, ready-to-sell master boxes.
+3. **The Split Bundle Logic:** 
+   - If a bundle of 20 suits is sent to two different vendors, the system MUST retire the parent Batch ID and generate two new Child Batch IDs (e.g., `BUN-042-A`, `BUN-042-B`).
+4. **Zero-Cost Rework:** 
+   - If a suit is marked "Damaged" during QA, it generates a "Rework Challan". The piece-rate payable for rework is strictly Rs. 0 to prevent double-paying vendors for their own mistakes.
+5. **Kitting Engine:** 
+   - Final sales are grouped in "Catalogs". Packing a catalog visually deducts loose finished suits from the database and adds exactly 1 "Complete Catalog" to final inventory.
+
+## Coding Standards & Constraints
+- **Strict TypeScript:** No `any` types. Enforce strict type safety across all boundaries.
+- **Transactions:** Any database calls that involve financial ledgers or inventory UoM deductions MUST be wrapped in a Prisma `$transaction` to prevent database corruption if the server crashes.
+- **Modularity:** Keep NestJS domains isolated (e.g., `InventoryModule`, `FinanceModule`, `VendorModule`). One module should not directly overwrite another module's database tables without calling its service.
+- **Security:** Assume API routes are protected by JWT Auth and Role-Based Access Control (RBAC). 
+- **Hallucination Prevention:** Do not infer missing interfaces. If a business rule regarding the Garment lifecycle is ambiguous, ask for clarifying acceptance criteria before writing the code.
