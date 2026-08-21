@@ -79,8 +79,8 @@ export default function ReceiveFabricPage() {
     async function loadMasterData() {
       try {
         const [supplierResponse, fabricTypeResponse] = await Promise.all([
-          fetch(`\https://garment-erp-api-nr0i.onrender.com/master-data/suppliers`),
-          fetch(`\https://garment-erp-api-nr0i.onrender.com/master-data/fabric-types`),
+          fetch(`${API_BASE}/master-data/suppliers`),
+          fetch(`${API_BASE}/master-data/fabric-types`),
         ]);
         if (!supplierResponse.ok || !fabricTypeResponse.ok) {
           throw new Error("Master data could not be loaded.");
@@ -118,7 +118,7 @@ export default function ReceiveFabricPage() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(`\https://garment-erp-api-nr0i.onrender.com/inventory/receive`, {
+      const response = await fetch(`${API_BASE}/inventory/receive`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -150,21 +150,6 @@ export default function ReceiveFabricPage() {
     "mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 disabled:bg-slate-100 disabled:text-slate-400 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:disabled:bg-slate-800";
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
-      <header className="border-b border-slate-800 bg-slate-950 text-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8">
-          <Link href="/" className="text-xl font-bold tracking-wider">
-            <span className="text-amber-500">GARMENT</span> ERP
-          </Link>
-          <nav className="flex items-center gap-2 text-sm">
-            <Link href="/master-data" className="rounded-lg px-3 py-2 text-slate-300 transition hover:bg-slate-800 hover:text-white">
-              Master Data
-            </Link>
-            <span className="rounded-lg bg-slate-800 px-3 py-2 font-semibold text-amber-400">Receive Fabric</span>
-          </nav>
-        </div>
-      </header>
-
       <main className="mx-auto grid max-w-7xl gap-8 px-5 py-10 sm:px-8 lg:grid-cols-[minmax(0,1fr)_320px] lg:py-14">
         <section>
           <div className="mb-8">
@@ -242,6 +227,5 @@ export default function ReceiveFabricPage() {
           </div>
         </aside>
       </main>
-    </div>
   );
 }

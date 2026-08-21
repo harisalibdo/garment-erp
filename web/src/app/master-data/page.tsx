@@ -1,6 +1,5 @@
 'use client';
 import { API_BASE } from "@/lib/api";
-import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 
 type MasterDataKey = "suppliers" | "customers" | "items" | "users";
@@ -21,8 +20,8 @@ const tabs: Array<{ key: MasterDataKey; label: string; icon: string }> = [
 
 async function fetchMasterRecords() {
   const [supplierResponse, fabricResponse] = await Promise.all([
-    fetch(`\https://garment-erp-api-nr0i.onrender.com/master-data/suppliers`),
-    fetch(`\https://garment-erp-api-nr0i.onrender.com/master-data/fabric-types`),
+    fetch(`${API_BASE}/master-data/suppliers`),
+    fetch(`${API_BASE}/master-data/fabric-types`),
   ]);
   if (!supplierResponse.ok || !fabricResponse.ok) {
     throw new Error("Master data could not be loaded.");
@@ -68,7 +67,7 @@ export default function MasterDataPage() {
     setMessage(null);
     setError(null);
     try {
-      const response = await fetch(`\https://garment-erp-api-nr0i.onrender.com/master-data/suppliers`, {
+      const response = await fetch(`${API_BASE}/master-data/suppliers`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code: supplierCode, name: supplierName }),
@@ -94,14 +93,6 @@ export default function MasterDataPage() {
   const fieldClass = "rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-amber-500 focus:ring-4 focus:ring-amber-500/10 dark:border-slate-700 dark:bg-slate-950";
 
   return (
-    <div className="min-h-screen bg-slate-100 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
-      <header className="border-b border-slate-800 bg-slate-950 text-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 sm:px-8">
-          <Link href="/" className="text-xl font-bold tracking-wider"><span className="text-amber-500">GARMENT</span> ERP</Link>
-          <nav className="flex items-center gap-2 text-sm"><Link href="/inventory/receive" className="rounded-lg px-3 py-2 text-slate-300 hover:bg-slate-800 hover:text-white">Receive Fabric</Link><span className="rounded-lg bg-slate-800 px-3 py-2 font-semibold text-amber-400">Master Data</span></nav>
-        </div>
-      </header>
-
       <main className="mx-auto max-w-7xl px-5 py-10 sm:px-8 lg:py-14">
         <div className="mb-8"><p className="mb-2 text-sm font-bold uppercase tracking-[0.18em] text-amber-600 dark:text-amber-400">System Administration</p><h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Master Data</h1><p className="mt-3 text-slate-600 dark:text-slate-400">Maintain the core records used throughout the ERP.</p></div>
         {message && <div role="status" className="mb-5 rounded-xl border border-emerald-300 bg-emerald-50 px-4 py-3 text-emerald-800">{message}</div>}
@@ -139,7 +130,6 @@ export default function MasterDataPage() {
           </section>
         </div>
       </main>
-    </div>
   );
 }
 
