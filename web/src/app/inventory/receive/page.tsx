@@ -79,8 +79,8 @@ export default function ReceiveFabricPage() {
     async function loadMasterData() {
       try {
         const [supplierResponse, fabricTypeResponse] = await Promise.all([
-          fetch("http://localhost:3000/master-data/suppliers"),
-          fetch("http://localhost:3000/master-data/fabric-types"),
+          fetch(`\${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/master-data/suppliers`),
+          fetch(`\${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/master-data/fabric-types`),
         ]);
         if (!supplierResponse.ok || !fabricTypeResponse.ok) {
           throw new Error("Master data could not be loaded.");
@@ -118,7 +118,7 @@ export default function ReceiveFabricPage() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("http://localhost:3000/inventory/receive", {
+      const response = await fetch(`\${process.env.NEXT_PUBLIC_API_URL || "http://localhost:3000"}/inventory/receive`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
