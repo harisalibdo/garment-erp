@@ -1,7 +1,5 @@
 'use client';
 import { API_BASE } from "@/lib/api";
-"use client";
-
 import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
 
